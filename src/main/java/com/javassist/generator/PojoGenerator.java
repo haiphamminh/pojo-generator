@@ -1,6 +1,5 @@
 package com.javassist.generator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.Serializable;
@@ -39,22 +38,28 @@ public class PojoGenerator {
         Map<String, Object> map = mapper.readValue(json, Map.class);
         Map<String, Class<?>> properties = new HashMap<>();
         generateProperties(map, properties);
-        byte[] clazz = generate("com.javassist.generator.GeneratedPojo", properties);
-        System.out.println(mapper.writeValueAsString(new String(clazz)));
+        Class clazz = generate("com.javassist.generator.GeneratedPojo", properties);
     }
 
     static void generateProperties(Map<String, Object> map, Map<String, Class<?>> properties) {
         for (Entry<String, Object> entry : map.entrySet()) {
-            if (entry.getValue()
-                     .getClass()
+            Object value = entry.getValue();
+            if (value.getClass()
                      .isAssignableFrom(Map.class)) {
-
-            } else if (entry.getValue()
-                            .getClass()
-                            .isAssignableFrom(Number.class)) {
-                properties.put(entry.getKey(), Number.class);
-            } else if (entry.getValue()
-                            .getClass()
+                // TODO - nested object: List
+            } else if (value.getClass()
+                            .isAssignableFrom(Integer.class)) {
+                properties.put(entry.getKey(), Integer.class);
+            } else if (value.getClass()
+                            .isAssignableFrom(Long.class)) {
+                properties.put(entry.getKey(), Long.class);
+            } else if (value.getClass()
+                            .isAssignableFrom(Float.class)) {
+                properties.put(entry.getKey(), Float.class);
+            } else if (value.getClass()
+                            .isAssignableFrom(Double.class)) {
+                properties.put(entry.getKey(), Double.class);
+            } else if (value.getClass()
                             .isAssignableFrom(Boolean.class)) {
                 properties.put(entry.getKey(), Boolean.class);
             } else {
@@ -63,9 +68,9 @@ public class PojoGenerator {
         }
     }
 
-    public static byte[] generate(String className, Map<String, Class<?>> properties) throws NotFoundException,
-                                                                                             CannotCompileException,
-                                                                                             IOException {
+    public static Class generate(String className, Map<String, Class<?>> properties) throws NotFoundException,
+                                                                                            CannotCompileException,
+                                                                                            IOException {
 
         ClassPool pool = ClassPool.getDefault();
         CtClass cc = pool.makeClass(className);
@@ -87,7 +92,7 @@ public class PojoGenerator {
             cc.addMethod(generateSetter(cc, entry.getKey(), entry.getValue()));
         }
 
-        return cc.toBytecode();
+        return cc.toClass();
     }
 
     private static CtMethod generateGetter(CtClass declaringClass, String fieldName, Class fieldClass)
