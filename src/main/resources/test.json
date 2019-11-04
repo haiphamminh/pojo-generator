@@ -1,0 +1,19 @@
+{
+  "key1": "value1",
+  "key2": "value2",
+  "key3": {
+    "key31": "value31",
+    "key32": "value32"
+  },
+  "key4": "value4",
+  "key5": [
+    {
+      "key511": "value511",
+      "key512": "value512"
+    },
+    {
+      "key521": "value521",
+      "key522": "value522"
+    }
+  ]
+}
